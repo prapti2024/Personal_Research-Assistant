@@ -1,5 +1,5 @@
-import streamlit as st
-import requests
+import streamlit as st # pyright: ignore[reportMissingImports]
+import requests # pyright: ignore[reportMissingModuleSource]
 
 BACKEND_URL = "http://localhost:8000"  # Update if deployed elsewhere
 
