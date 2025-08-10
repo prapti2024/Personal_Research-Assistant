@@ -1,5 +1,5 @@
-import streamlit as st # pyright: ignore[reportMissingImports]
-import requests # pyright: ignore[reportMissingModuleSource]
+import streamlit as st
+import requests
 
 BACKEND_URL = "http://localhost:8000"  # Update if deployed elsewhere
 
@@ -13,12 +13,30 @@ with tab1:
 
     if uploaded_file is not None:
         if st.button("Submit PDF"):
-            files = {"file": (uploaded_file.name, uploaded_file, "application/pdf")}
+            files = {
+                "file": (
+                    uploaded_file.name,
+                    uploaded_file.getvalue(),
+                    "application/pdf",
+                )
+            }
             with st.spinner("Processing..."):
                 response = requests.post(f"{BACKEND_URL}/upload-pdf", files=files)
                 if response.ok:
+                    data = response.json()
                     st.success("PDF processed!")
-                    st.text_area("Extracted Text", response.json().get("text", ""), height=300)
+                    st.subheader("Extracted Text")
+                    st.text_area(
+                        "",
+                        data.get("extracted_text", ""),
+                        height=600,
+                    )
+                    st.subheader("Summary")
+                    st.text_area(
+                        "",
+                        data.get("summary", ""),
+                        height=400,
+                    )
                 else:
                     st.error(f"Error: {response.status_code}")
 
@@ -26,11 +44,23 @@ with tab2:
     st.header("Enter a URL")
     url = st.text_input("Paste URL")
 
-    if st.button("Submit URL"):
+    if url and st.button("Submit URL"):
         with st.spinner("Fetching content..."):
             response = requests.post(f"{BACKEND_URL}/fetch-url", json={"url": url})
             if response.ok:
+                data = response.json()
                 st.success("Content fetched!")
-                st.text_area("Extracted Text", response.json().get("text", ""), height=300)
+                st.subheader("Extracted Text")
+                st.text_area(
+                    "",
+                    data.get("text", ""),
+                    height=300,
+                )
+                st.subheader("Summary")
+                st.text_area(
+                    "",
+                    data.get("summary", ""),
+                    height=200,
+                )
             else:
                 st.error(f"Error: {response.status_code}")
